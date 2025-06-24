@@ -1,6 +1,15 @@
 # 3d-printer-enclosure-esp32
 An automated 3d printer enclosure monitoring and control system
 
+Features:
+- Display temperature, humidity and fan status
+- Return temperature, humidity and fan status over the wifi
+- Control the fan over the wifi
+
+Photos:
+
+![3d printer monitoring](images/2025-06-25 01.35.43.jpg)
+
 Component used:
 - Microcontroller: KS0413 Keyestudio ESP32 Core Board
 
