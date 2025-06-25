@@ -8,7 +8,11 @@ Features:
 
 Photos:
 
-![3d printer monitoring](/images/2025-06-25 01.35.43.jpg)
+![3d printer monitoring front view](/images/front-view.jpg)
+![3d printer monitoring front view 2](/images/front-view-2.jpg)
+![3d printer monitoring IO view](/images/io-view.jpg)
+![3d printer monitoring opened case](/images/opened-case.jpg)
+
 
 Component used:
 - Microcontroller: KS0413 Keyestudio ESP32 Core Board
