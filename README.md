@@ -8,7 +8,7 @@ Features:
 
 Photos:
 
-![3d printer monitoring](images/2025-06-25 01.35.43.jpg)
+![3d printer monitoring](/images/2025-06-25 01.35.43.jpg)
 
 Component used:
 - Microcontroller: KS0413 Keyestudio ESP32 Core Board
