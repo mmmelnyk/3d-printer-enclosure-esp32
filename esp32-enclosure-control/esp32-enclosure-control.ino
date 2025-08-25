@@ -7,7 +7,7 @@
 
 #define DHTPIN 4
 #define DHTTYPE DHT22
-#define RELAY_PIN 16  // Pin for relay control
+#define FAN_RELAY_PIN 16  // Pin for relay control
 
 DHT dht(DHTPIN, DHTTYPE);
 // oled
@@ -19,13 +19,15 @@ Adafruit_SSD1306 display(128, 64, &SPI, OLED_DC, OLED_RESET, OLED_CS);
 
 WiFiServer server(80);
 
-String getRelayStatus() {
-  return digitalRead(RELAY_PIN) == HIGH ? "ON" : "OFF";
+bool isFanRelayOn() {
+  return digitalRead(FAN_RELAY_PIN) == HIGH;
 }
 
 // Terminal-style line output
 int currentLine = 0;
 const int lineHeight = 8; // for font size 1
+
+String moduleName = "Creality cr 10 se";
 
 void printToOLED(String msg) {
   display.setCursor(0, currentLine * lineHeight);
@@ -73,7 +75,7 @@ void setup() {
   Serial.println(WiFi.localIP());
 
   server.begin();
-  pinMode(RELAY_PIN, OUTPUT);
+  pinMode(FAN_RELAY_PIN, OUTPUT);
   delay(3000);
 }
 
@@ -97,25 +99,21 @@ void loop() {
     }
 
     // Parse relay command
-    if (request.indexOf("GET /relay?state=on") >= 0) {
-      digitalWrite(RELAY_PIN, HIGH);
-      Serial.println("Relay ON");
-    } else if (request.indexOf("GET /relay?state=off") >= 0) {
-      digitalWrite(RELAY_PIN, LOW);
-      Serial.println("Relay OFF");
+    if (request.indexOf("GET /fan-relay?on=true") >= 0) {
+      digitalWrite(FAN_RELAY_PIN, HIGH);
+      Serial.println("Fan Relay ON");
+    } else if (request.indexOf("GET /fan-relay?on=false") >= 0) {
+      digitalWrite(FAN_RELAY_PIN, LOW);
+      Serial.println("Fan Relay OFF");
     }
 
-    // Serve web page
+    // Serve JSON response
     client.println("HTTP/1.1 200 OK");
-    client.println("Content-type:text/html\n");
-    client.println("<!DOCTYPE html><html><head><meta charset='utf-8'><title>ESP32 Control</title></head><body>");
-    client.printf("<h1>Temperature: %.1f &deg;C</h1>", temp);
-    client.printf("<h2>Humidity: %.1f %%</h2>", hum);
-    client.printf("<p><strong>Fan Status:</strong> %s</p>", getRelayStatus().c_str());
-    client.println("<p><a href='/relay?state=on'><button>Turn ON Relay</button></a></p>");
-    client.println("<p><a href='/relay?state=off'><button>Turn OFF Relay</button></a></p>");
-    client.println("</body></html>");
-
+    client.println("Content-Type: application/json; charset=utf-8\r\n");
+    client.printf(
+      "{\"temperature\": %.1f, \"humidity\": %.1f, \"fanStatus\": %s, \"moduleName\": \"%s\"}\n",
+      temp, hum, isFanRelayOn() ? "true" : "false", moduleName.c_str()
+    );
     client.flush();
     client.stop();
     Serial.println("Client disconnected");
@@ -129,7 +127,7 @@ void loop() {
   display.printf("CR 10 SE\n");
   display.printf("Temp:%.1fC\n", temp);
   display.printf("Hum:%.1f%%\n", hum);
-  display.printf("Fan: %s", getRelayStatus().c_str());
+  display.printf("Fan: %s", isFanRelayOn() ? "ON" : "OFF");
   display.display();
   
   delay(1000);  // Refresh every second
